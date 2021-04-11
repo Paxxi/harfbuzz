@@ -176,32 +176,21 @@ _hb_directwrite_shaper_face_data_create (hb_face_t *face)
     return nullptr; \
   } HB_STMT_END
 
-  data->dwrite_dll = LoadLibrary (TEXT ("DWRITE"));
-  if (unlikely (!data->dwrite_dll))
-    FAIL ("Cannot find DWrite.DLL");
-
-  t_DWriteCreateFactory p_DWriteCreateFactory;
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
-  p_DWriteCreateFactory = (t_DWriteCreateFactory)
-			  GetProcAddress (data->dwrite_dll, "DWriteCreateFactory");
-
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
-
-  if (unlikely (!p_DWriteCreateFactory))
-    FAIL ("Cannot find DWriteCreateFactory().");
 
   HRESULT hr;
 
   // TODO: factory and fontFileLoader should be cached separately
   IDWriteFactory* dwriteFactory;
-  hr = p_DWriteCreateFactory (DWRITE_FACTORY_TYPE_SHARED, __uuidof (IDWriteFactory),
+  hr = DWriteCreateFactory (DWRITE_FACTORY_TYPE_SHARED, __uuidof (IDWriteFactory),
 			      (IUnknown**) &dwriteFactory);
 
   if (unlikely (hr != S_OK))

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 3.14)
 project(harfbuzz)
 
 message(WARN "HarfBuzz has a Meson port and tries to migrate all the other build systems to it, please consider using it as we might remove our cmake port soon.")
@@ -414,6 +414,7 @@ endif ()
 ## Define harfbuzz library
 add_library(harfbuzz ${project_sources} ${project_extra_sources} ${project_headers})
 target_link_libraries(harfbuzz ${THIRD_PARTY_LIBS})
+target_include_directories(harfbuzz INTERFACE $<INSTALL_INTERFACE:include/harfbuzz>)
 
 
 ## Define harfbuzz-icu library
@@ -675,6 +676,24 @@ if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
     install(FILES ${hb_gobject_headers} ${hb_gobject_gen_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/harfbuzz)
   endif ()
 endif ()
+
+set_target_properties(harfbuzz
+  PROPERTIES
+    COMPILE_PDB_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+    COMPILE_PDB_NAME harfbuzz
+    COMPILE_PDB_NAME_DEBUG harfbuzzd
+    OUTPUT_NAME_DEBUG harfbuzzd
+)
+install(FILES
+  ${PROJECT_BINARY_DIR}/RelWithDebInfo/harfbuzz.pdb
+  DESTINATION lib
+  CONFIGURATIONS RelWithDebInfo
+)
+install(FILES
+  ${PROJECT_BINARY_DIR}/Debug/harfbuzzd.pdb
+  DESTINATION lib
+  CONFIGURATIONS Debug
+)
 
 if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
   install(TARGETS harfbuzz
